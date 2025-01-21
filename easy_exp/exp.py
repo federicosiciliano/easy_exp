@@ -66,10 +66,9 @@ def remove_nosave_keys(cfg, exp_cfg):
     :param exp_cfg: The experiment configuration.
     :return: A tuple containing the updated main configuration dictionary and the experiment configuration.
     """
+    cfg = copy.deepcopy(cfg)
     for key in exp_cfg[experiment_nosave_key]:
-        #exp_cfg[experiment_nosave_key][key] = cfg.pop(key)
-        exp_cfg[experiment_nosave_key][key] = cfg[key]
-    cfg = ConfigObject({key:value for key,value in cfg.items() if key not in exp_cfg[experiment_nosave_key]})
+        exp_cfg[experiment_nosave_key][key] = cfg.pop(key)
     return cfg, exp_cfg
 
 # This function restores keys that were previously removed as "nosave."
@@ -152,8 +151,12 @@ def if_not_folder_create(folder_path):
     :param folder_path: The path to the folder.
     """
     if not os.path.isdir(folder_path):
-        print(folder_path, "not found --> creating")
-        os.makedirs(folder_path)
+        try:
+            os.makedirs(folder_path)
+            print(folder_path, "not found --> created")
+        # catch folder already created by another process
+        except FileExistsError:
+            pass
 
 
 # This function constructs the path to the experiment list file.
@@ -597,3 +600,10 @@ def jsonify_numpys(value):
 
 def jsonify_function(value):
     return value.__name__
+
+
+
+#TODO:
+# Put defaults 
+# Delete some experiments
+# Change a parameter's name
